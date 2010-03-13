@@ -8,25 +8,36 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ViewSwitcher;
 
-public class WorldTime extends ListActivity {
+public class WorldTime extends Activity {
 
   BroadcastReceiver timeTickReceiver;
+  ListView mainListView;
+  ListView allTZListView;
+  private ViewSwitcher switcher;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    ListView lv = getListView();
-    lv.setTextFilterEnabled(true);
+    
+    mainListView = new ListView(this);
+    allTZListView = new ListView(this);
+    allTZListView.setTextFilterEnabled(true);
+    
+    switcher = new ViewSwitcher(this);
+    switcher.addView(mainListView);
+    switcher.addView(allTZListView);
+    
+    setContentView(switcher);
   }
 
   @Override
@@ -49,7 +60,7 @@ public class WorldTime extends ListActivity {
   }
 
   private void updateTimes() {
-    setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
+    mainListView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
   }
 
   private List<String> getTimes() {
