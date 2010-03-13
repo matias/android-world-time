@@ -19,20 +19,28 @@ public class WorldTime extends ListActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
-    
     ListView lv = getListView();
     lv.setTextFilterEnabled(true);
   }
 
-  private String[] getTimes() {
+  @Override
+  protected void onResume() {
+    super.onResume();
+    setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
+  }
+
+  private List<String> getTimes() {
     Date now = new Date();
     Pattern tzPattern = Pattern.compile("/(\\w+)");
     String[] timezones = new String[] {
       "America/Los_Angeles",
+      "America/New_York",
+      "America/Buenos_Aires",
+      "America/Montevideo",
+      "Europe/London",
       "Africa/Windhoek"
     };
-    List<String> entries = new ArrayList<String>();
+    List<String> times = new ArrayList<String>();
     for (String tzName : timezones) {
       TimeZone tz = TimeZone.getTimeZone(tzName);
       if (tz != null) {
@@ -40,10 +48,9 @@ public class WorldTime extends ListActivity {
         dateFormat.setTimeZone(tz);
         Matcher matcher = tzPattern.matcher(tzName);
         matcher.find();
-        entries.add(dateFormat.format(now) + " in " + matcher.group(1).replace("_", " "));
+        times.add(dateFormat.format(now) + " in " + matcher.group(1).replace("_", " "));
       }
     }
-    
-    return entries.toArray(new String[0]);
+    return times;
   }
 }
