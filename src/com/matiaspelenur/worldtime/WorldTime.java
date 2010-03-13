@@ -24,9 +24,8 @@ public class WorldTime extends ListActivity {
     lv.setTextFilterEnabled(true);
   }
 
-  private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-  
   private String[] getTimes() {
+    Date now = new Date();
     String[] timezones = new String[] {
       "America/Los_Angeles",
       "Africa/Windhoek"
@@ -35,9 +34,9 @@ public class WorldTime extends ListActivity {
     for (String tzName : timezones) {
       TimeZone tz = TimeZone.getTimeZone(tzName);
       if (tz != null) {
-        Calendar cal = Calendar.getInstance(tz);
-        Date date = cal.getTime();
-        entries.add(dateFormat.format(date) + " in " + tz.getDisplayName());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        dateFormat.setTimeZone(tz);
+        entries.add(dateFormat.format(now) + " in " + tz.getDisplayName());
       }
     }
     
