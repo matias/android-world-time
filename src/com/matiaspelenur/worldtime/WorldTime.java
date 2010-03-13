@@ -2,10 +2,11 @@ package com.matiaspelenur.worldtime;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class WorldTime extends ListActivity {
 
   private String[] getTimes() {
     Date now = new Date();
+    Pattern tzPattern = Pattern.compile("/(\\w+)");
     String[] timezones = new String[] {
       "America/Los_Angeles",
       "Africa/Windhoek"
@@ -36,7 +38,9 @@ public class WorldTime extends ListActivity {
       if (tz != null) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         dateFormat.setTimeZone(tz);
-        entries.add(dateFormat.format(now) + " in " + tz.getDisplayName());
+        Matcher matcher = tzPattern.matcher(tzName);
+        matcher.find();
+        entries.add(dateFormat.format(now) + " in " + matcher.group(1).replace("_", " "));
       }
     }
     
