@@ -14,6 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ViewSwitcher;
@@ -39,6 +41,18 @@ public class WorldTime extends Activity {
     
     setContentView(switcher);
   }
+  
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.options_menu, menu);
+    return true;
+  }
+  
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switcher.showNext();
+    return true;
+  }
 
   @Override
   protected void onResume() {
@@ -52,7 +66,7 @@ public class WorldTime extends Activity {
     this.registerReceiver(timeTickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     updateTimes();
   }
-  
+
   @Override
   protected void onPause() {
     super.onPause();
