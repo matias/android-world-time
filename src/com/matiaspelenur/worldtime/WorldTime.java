@@ -9,16 +9,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class WorldTime extends ListActivity {
 
+  BroadcastReceiver timeTickReceiver;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     ListView lv = getListView();
     lv.setTextFilterEnabled(true);
   }
@@ -26,6 +32,23 @@ public class WorldTime extends ListActivity {
   @Override
   protected void onResume() {
     super.onResume();
+    timeTickReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        updateTimes();
+      }
+    };
+    this.registerReceiver(timeTickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
+    updateTimes();
+  }
+  
+  @Override
+  protected void onPause() {
+    super.onPause();
+    this.unregisterReceiver(timeTickReceiver);
+  }
+
+  private void updateTimes() {
     setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
   }
 
