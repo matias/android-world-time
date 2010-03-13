@@ -50,8 +50,17 @@ public class WorldTime extends Activity {
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    if (switcher.getNextView() == allTZListView && 
+        allTZListView.getAdapter() == null) {
+      fillTZList();
+    }
     switcher.showNext();
     return true;
+  }
+
+  private void fillTZList() {
+    allTZListView.setAdapter(new ArrayAdapter<String>(
+        this, R.layout.list_item, TimeZone.getAvailableIDs()));
   }
 
   @Override
