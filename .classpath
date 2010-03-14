@@ -3,5 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="/Users/matias/lib/google-collect-1.0/google-collect-1.0.jar" sourcepath="/Users/matias/lib/google-collect-1.0/src-1.0.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/Users/matias/lib/google-collect-1.0/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
