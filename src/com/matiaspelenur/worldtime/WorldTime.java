@@ -3,6 +3,7 @@ package com.matiaspelenur.worldtime;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -22,10 +23,11 @@ import android.widget.ViewSwitcher;
 
 public class WorldTime extends Activity {
 
-  BroadcastReceiver timeTickReceiver;
-  ListView mainListView;
-  ListView allTZListView;
+  private BroadcastReceiver timeTickReceiver;
+  private ListView mainListView;
+  private ListView allTZListView;
   private ViewSwitcher switcher;
+  private HashMap<String, List<String>> allTZByRegionMap;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +52,42 @@ public class WorldTime extends Activity {
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.choose) {
+      return false;
+    }
     if (switcher.getNextView() == allTZListView && 
         allTZListView.getAdapter() == null) {
-      fillTZList();
+      fillTZList(item.getTitle().toString());
     }
     switcher.showNext();
     return true;
   }
 
-  private void fillTZList() {
+  private void fillTZList(String region) {
+    if (allTZByRegionMap == null) {
+      populateTZRegionMap();
+    }
+    List<String> cities = allTZByRegionMap.get(region);
     allTZListView.setAdapter(new ArrayAdapter<String>(
-        this, R.layout.list_item, TimeZone.getAvailableIDs()));
+        this, R.layout.list_item, cities.toArray(new String[cities.size()])));
+  }
+
+  private void populateTZRegionMap() {
+    allTZByRegionMap = new HashMap<String, List<String>>();
+    Pattern tzPattern = Pattern.compile("(\\w+)/(\\w+)");
+    for (String tz : TimeZone.getAvailableIDs()) {
+      Matcher match = tzPattern.matcher(tz);
+      if (match.matches()) {
+        String region = match.group(1);
+        String city = match.group(2);
+        List<String> cities = allTZByRegionMap.get(region);
+        if (cities == null) {
+          cities = new ArrayList<String>();
+          allTZByRegionMap.put(region, cities);
+        }
+        cities.add(city);
+      }
+    }
   }
 
   @Override
