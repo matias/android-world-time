@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,13 +19,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.ViewSwitcher;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class WorldTime extends Activity {
 
   private BroadcastReceiver timeTickReceiver;
-  private ListView mainListView;
+  private ExpandableListView mainListView;
   private ListView allTZListView;
   private ViewSwitcher switcher;
   private HashMap<String, List<String>> allTZByRegionMap;
@@ -33,7 +39,7 @@ public class WorldTime extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    mainListView = new ListView(this);
+    mainListView = new ExpandableListView(this);
     allTZListView = new ListView(this);
     allTZListView.setTextFilterEnabled(true);
     
@@ -110,7 +116,30 @@ public class WorldTime extends Activity {
   }
 
   private void updateTimes() {
-    mainListView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
+    //mainListView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
+    List<Map<String, String>> regionList = ImmutableList.<Map<String, String>>of(
+        ImmutableMap.of("region", "America"),
+        ImmutableMap.of("region", "Africa"));
+    List<List<Map<String, String>>> cityList = ImmutableList.<List<Map<String,String>>>of(
+        ImmutableList.<Map<String,String>>of(
+            ImmutableMap.of("city", "New York"),
+            ImmutableMap.of("city", "Buenos Aires")), 
+        ImmutableList.<Map<String,String>>of(
+            ImmutableMap.of("city", "New York"),
+            ImmutableMap.of("city", "Buenos Aires")));
+    
+    SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
+        this,
+        regionList,
+        R.layout.regions_parent_row,
+        new String[] { "region" },
+        new int[] { R.id.region_name},
+        cityList,
+        R.layout.regions_child_row,
+        new String[] { "city" },
+        new int[] { R.id.city_name }
+        );
+    mainListView.setAdapter(listAdapter);
   }
 
   private List<String> getTimes() {
