@@ -3,10 +3,13 @@
   android:orientation="horizontal" android:layout_width="fill_parent"
   android:layout_height="wrap_content">
 
-  <CheckBox android:id="@+id/city_check" android:focusable="false"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+  <CheckBox android:id="@+id/city_check"
+    android:focusable="false"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
 
-  <TextView android:id="@+id/city_name" android:paddingLeft="50px"
-    android:focusable="false" android:layout_width="150px"
+  <TextView android:id="@+id/city_name"
+    android:focusable="false"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content" />
 </LinearLayout>

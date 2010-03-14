@@ -125,8 +125,8 @@ public class WorldTime extends Activity {
             ImmutableMap.of("city", "New York"),
             ImmutableMap.of("city", "Buenos Aires")), 
         ImmutableList.<Map<String,String>>of(
-            ImmutableMap.of("city", "New York"),
-            ImmutableMap.of("city", "Buenos Aires")));
+            ImmutableMap.of("city", "Abu Dabbi"),
+            ImmutableMap.of("city", "Windhoek")));
     
     SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
         this,
