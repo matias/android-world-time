@@ -1,15 +1,5 @@
 package com.matiaspelenur.worldtime;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,8 +25,36 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Shows the current time at various configurable cities around the world.
+ * 
+ * TODO(matias):
+ *  - sort by timezone (and optionally by name)
+ *  - filter from list of regions
+ *  - short/expanded list of cities
+ *  - add additional cities? (e.g. seattle)
+ *  - keyboard search on city list
+ *     (replace expanded list with simple view filtered by what's typed)
+ *  - back button on city list collapses region? or at least goes back to times
+ *  - add +1 or -1 days from local timezone
+ * 
+ * @author matias@pelenur.com (Matias Pelenur)
+ *
+ */
 public class WorldTime extends Activity {
 
   private BroadcastReceiver timeTickReceiver;
@@ -220,17 +238,39 @@ public class WorldTime extends Activity {
   private List<String> getTimes() {
     Date now = new Date();
     Pattern tzPattern = Pattern.compile("/(\\w+)");
-    List<String> times = new ArrayList<String>();
+    List<NamedTimeZone> timeZones = Lists.newArrayList();
     for (String tzName : enabledCities) {
       TimeZone tz = TimeZone.getTimeZone(tzName);
       if (tz != null) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        dateFormat.setTimeZone(tz);
-        Matcher matcher = tzPattern.matcher(tzName);
-        matcher.find();
-        times.add(dateFormat.format(now) + " in " + matcher.group(1).replace("_", " "));
+        timeZones.add(new NamedTimeZone(tzName, tz));
       }
     }
+    Collections.sort(timeZones);
+    
+    List<String> times = new ArrayList<String>();
+    for (NamedTimeZone tz : timeZones) {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+      dateFormat.setTimeZone(tz.timeZone);
+      Matcher matcher = tzPattern.matcher(tz.name);
+      matcher.find();
+      times.add(dateFormat.format(now) + " in " + matcher.group(1).replace("_", " "));
+    }
+    
     return times;
+  }
+  
+  private static class NamedTimeZone implements Comparable<NamedTimeZone> {
+    public final String name;
+    public final TimeZone timeZone;
+    
+    public NamedTimeZone(String name, TimeZone timeZone) {
+      this.name = name;
+      this.timeZone = timeZone;
+    }
+
+    @Override
+    public int compareTo(NamedTimeZone that) {
+      return this.timeZone.getRawOffset() - that.timeZone.getRawOffset();
+    }
   }
 }
