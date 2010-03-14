@@ -18,10 +18,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleExpandableListAdapter;
+import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.google.common.collect.ImmutableList;
@@ -65,7 +71,8 @@ public class WorldTime extends Activity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (timeZonesListView.getAdapter() == null) {
-      fillTZList();
+//      fillTZList();
+      timeZonesListView.setAdapter(new RegionCityListAdapter());
     }
     switcher.showNext();
     return true;
@@ -89,10 +96,10 @@ public class WorldTime extends Activity {
       }
       cityList.add(cities);
     }
-    Log.i(this.toString(), String.valueOf(regionList));
-    Log.i(this.toString(), String.valueOf(cityList));
+//    Log.i(this.toString(), String.valueOf(regionList));
+//    Log.i(this.toString(), String.valueOf(cityList));
     
-    SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
+    /*SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
         this,
         regionList,
         R.layout.regions_parent_row,
@@ -103,7 +110,94 @@ public class WorldTime extends Activity {
         new String[] { "_id", "city" },
         new int[] { R.id.city_name }
         );
-    timeZonesListView.setAdapter(listAdapter);
+    timeZonesListView.setAdapter(listAdapter);*/
+  }
+  
+  public class RegionCityListAdapter extends BaseExpandableListAdapter {
+
+    private String[] regions = { "Africa", "Europe" };
+    private String[][] children = {
+        {"1", "2", "3", "4", "5", "6", "7", "8", "9"},
+        {"10","11","12","13","14","15","16","17","18"}
+    };
+    
+    private boolean[][] childrenValue = new boolean[regions.length][children[0].length];
+    
+    public RegionCityListAdapter() {
+    }
+    
+    @Override
+    public Object getChild(int groupPosition, int childPosition) {
+      return children[groupPosition][childPosition];
+    }
+
+    @Override
+    public long getChildId(int groupPosition, int childPosition) {
+      return childPosition;
+    }
+
+    @Override
+    public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild,
+        View convertView, ViewGroup parent) {
+      LinearLayout layout = new LinearLayout(WorldTime.this);
+      TextView textView = new TextView(WorldTime.this);
+      textView.setText(getChild(groupPosition, childPosition).toString());
+      
+      CheckBox checkbox = new CheckBox(WorldTime.this);
+      checkbox.setChecked(childrenValue[groupPosition][childPosition]);
+      checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+          Log.i("matias:", "isChecked=" + isChecked + " for " + buttonView);
+          childrenValue[groupPosition][childPosition] = isChecked;
+        }
+      });
+      layout.addView(checkbox);
+      layout.addView(textView);
+      return layout;
+    }
+
+    @Override
+    public int getChildrenCount(int groupPosition) {
+      return children[groupPosition].length;
+    }
+
+    @Override
+    public Object getGroup(int groupPosition) {
+      return regions[groupPosition];
+    }
+
+    @Override
+    public int getGroupCount() {
+      return regions.length;
+    }
+
+    @Override
+    public long getGroupId(int groupPosition) {
+      return groupPosition;
+    }
+
+    @Override
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
+        ViewGroup parent) {
+      TextView textView = new TextView(WorldTime.this);
+      textView.setText(getGroup(groupPosition).toString());
+      textView.setPadding(36, 10, 0, 10);
+      return textView;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+    
   }
 
   private void populateTZRegionMap() {
