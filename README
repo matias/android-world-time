@@ -1,7 +1,13 @@
 android-world-time: Yet another "World Time" app for Android.
 
-I wrote this as my first Android app, to see how Android development was, and
-because I wanted something just like this. It's clearly not the only app in
-the market.
+2010-03-14
 
-This is a work in progress, expect bugs and ugly code. Use at your own risk.
+I wrote this, today, as my first Android app, to see how Android development,
+was, and because I wanted something just like this. It's clearly not the only 
+app in the market that does this.
+
+android-world-time is a work in progress, expect bugs and ugly code.
+Use at your own risk. No warranties expressed or implied, etc etc.
+
+Requires google-collect-1.0.zip from http://code.google.com/p/google-collections/.
+Built using Eclipse and the ADT plugin.
