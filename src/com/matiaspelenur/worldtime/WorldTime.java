@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -23,7 +24,6 @@ import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.ViewSwitcher;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -39,7 +39,7 @@ public class WorldTime extends Activity {
   
   // TODO(matias): let the user enable or disable regions
   private static final List<String> enabledRegions = ImmutableList.of(
-      "America", "Europe", "Africa", "Indian", "Pacific");
+      "America", "Europe"/*, "Africa", "Indian", "Pacific"*/);
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -78,24 +78,29 @@ public class WorldTime extends Activity {
     
     List<Map<String, String>> regionList = Lists.newArrayList();
     List<List<Map<String, String>>> cityList = Lists.newArrayList();
+    int id = 0;
     for (String region: enabledRegions) {
-      regionList.add(ImmutableMap.of("region", region));
+      regionList.add(ImmutableMap.of("region", region, "_id", String.valueOf(id)));
+      id++;
       List<Map<String, String>> cities = Lists.newArrayList();
       for (String city : timeZonesByRegion.get(region)) {
-        cities.add(ImmutableMap.of("city", city));
+        cities.add(ImmutableMap.of("city", city, "_id", String.valueOf(id)));
+        id++;
       }
       cityList.add(cities);
     }
+    Log.i(this.toString(), String.valueOf(regionList));
+    Log.i(this.toString(), String.valueOf(cityList));
     
     SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
         this,
         regionList,
         R.layout.regions_parent_row,
-        new String[] { "region" },
+        new String[] { "_id", "region" },
         new int[] { R.id.region_name},
         cityList,
         R.layout.regions_child_row,
-        new String[] { "city" },
+        new String[] { "_id", "city" },
         new int[] { R.id.city_name }
         );
     timeZonesListView.setAdapter(listAdapter);
