@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  * Shows the current time at various configurable cities around the world.
  * 
  * TODO(matias):
- *  - sort by timezone (and optionally by name)
+ *  - option to sort by city name?
  *  - filter from list of regions
  *  - short/expanded list of cities
  *  - add additional cities? (e.g. seattle)
