@@ -71,6 +71,7 @@ public class WorldTime extends Activity {
       timeZonesListView.setAdapter(new RegionCityListAdapter());
     }
     switcher.showNext();
+    updateTimes();
     return true;
   }
 
@@ -129,7 +130,6 @@ public class WorldTime extends Activity {
       checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-          Log.i("matias:", "isChecked=" + isChecked + " for " + buttonView);
           if (isChecked) {
             enabledCities.add(fullName);
           } else {
@@ -218,7 +218,7 @@ public class WorldTime extends Activity {
       "Africa/Windhoek"
     };
     List<String> times = new ArrayList<String>();
-    for (String tzName : timezones) {
+    for (String tzName : enabledCities) {
       TimeZone tz = TimeZone.getTimeZone(tzName);
       if (tz != null) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
