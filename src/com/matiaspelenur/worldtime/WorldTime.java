@@ -152,7 +152,7 @@ public class WorldTime extends Activity {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-      return regionCityMap.size();
+      return regionCityMap.get(getGroup(groupPosition).toString()).size();
     }
 
     @Override
@@ -187,8 +187,7 @@ public class WorldTime extends Activity {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
       return false;
-    }
-    
+    } 
   }
 
   @Override
