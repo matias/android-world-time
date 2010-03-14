@@ -2,6 +2,7 @@ package com.matiaspelenur.worldtime;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -14,8 +15,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
@@ -57,6 +59,12 @@ public class WorldTime extends Activity {
     switcher.addView(timeZonesListView);
     
     setContentView(switcher);
+    
+    SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+    String storedEnabledCities = prefs.getString("enabledCities", "");
+    if (storedEnabledCities.length() > 0) {
+      enabledCities.addAll(Arrays.asList(storedEnabledCities.split(",")));
+    }
   }
   
   @Override
@@ -79,7 +87,7 @@ public class WorldTime extends Activity {
 
     // TODO(matias): let the user enable or disable regions
     private final List<String> enabledRegions = ImmutableList.of(
-        "America", "Europe"/*, "Africa", "Indian", "Pacific"*/);
+        "America", "Europe", "Africa", "Indian", "Pacific");
 
     private ListMultimap<String,String> regionCityMap;
     
@@ -198,8 +206,12 @@ public class WorldTime extends Activity {
 
   @Override
   protected void onPause() {
-    super.onPause();
+    SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+    prefs.edit().putString("enabledCities", Joiner.on(",").join(enabledCities));
+    prefs.edit().commit();
+    
     this.unregisterReceiver(timeTickReceiver);
+    super.onPause();
   }
 
   private void updateTimes() {
@@ -209,14 +221,6 @@ public class WorldTime extends Activity {
   private List<String> getTimes() {
     Date now = new Date();
     Pattern tzPattern = Pattern.compile("/(\\w+)");
-    String[] timezones = new String[] {
-      "America/Los_Angeles",
-      "America/New_York",
-      "America/Buenos_Aires",
-      "America/Montevideo",
-      "Europe/London",
-      "Africa/Windhoek"
-    };
     List<String> times = new ArrayList<String>();
     for (String tzName : enabledCities) {
       TimeZone tz = TimeZone.getTimeZone(tzName);
