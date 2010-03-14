@@ -3,7 +3,6 @@ package com.matiaspelenur.worldtime;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -24,28 +23,35 @@ import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.ViewSwitcher;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
 
 public class WorldTime extends Activity {
 
   private BroadcastReceiver timeTickReceiver;
-  private ExpandableListView mainListView;
-  private ListView allTZListView;
+  private ListView mainListView;
+  private ExpandableListView timeZonesListView;
   private ViewSwitcher switcher;
-  private HashMap<String, List<String>> allTZByRegionMap;
+  private LinkedHashMultimap<String,String> timeZonesByRegion;
+  
+  // TODO(matias): let the user enable or disable regions
+  private static final List<String> enabledRegions = ImmutableList.of(
+      "America", "Europe", "Africa", "Indian", "Pacific");
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    mainListView = new ExpandableListView(this);
-    allTZListView = new ListView(this);
-    allTZListView.setTextFilterEnabled(true);
+    mainListView = new ListView(this);
+    timeZonesListView = new ExpandableListView(this);
+    timeZonesListView.setTextFilterEnabled(true);
     
     switcher = new ViewSwitcher(this);
     switcher.addView(mainListView);
-    switcher.addView(allTZListView);
+    switcher.addView(timeZonesListView);
     
     setContentView(switcher);
   }
@@ -58,40 +64,52 @@ public class WorldTime extends Activity {
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == R.id.choose) {
-      return false;
-    }
-    if (switcher.getNextView() == allTZListView && 
-        allTZListView.getAdapter() == null) {
-      fillTZList(item.getTitle().toString());
+    if (timeZonesListView.getAdapter() == null) {
+      fillTZList();
     }
     switcher.showNext();
     return true;
   }
 
-  private void fillTZList(String region) {
-    if (allTZByRegionMap == null) {
+  private void fillTZList() {
+    if (timeZonesByRegion == null) {
       populateTZRegionMap();
     }
-    List<String> cities = allTZByRegionMap.get(region);
-    allTZListView.setAdapter(new ArrayAdapter<String>(
-        this, R.layout.list_item, cities.toArray(new String[cities.size()])));
+    
+    List<Map<String, String>> regionList = Lists.newArrayList();
+    List<List<Map<String, String>>> cityList = Lists.newArrayList();
+    for (String region: enabledRegions) {
+      regionList.add(ImmutableMap.of("region", region));
+      List<Map<String, String>> cities = Lists.newArrayList();
+      for (String city : timeZonesByRegion.get(region)) {
+        cities.add(ImmutableMap.of("city", city));
+      }
+      cityList.add(cities);
+    }
+    
+    SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
+        this,
+        regionList,
+        R.layout.regions_parent_row,
+        new String[] { "region" },
+        new int[] { R.id.region_name},
+        cityList,
+        R.layout.regions_child_row,
+        new String[] { "city" },
+        new int[] { R.id.city_name }
+        );
+    timeZonesListView.setAdapter(listAdapter);
   }
 
   private void populateTZRegionMap() {
-    allTZByRegionMap = new HashMap<String, List<String>>();
+    timeZonesByRegion = LinkedHashMultimap.create();
     Pattern tzPattern = Pattern.compile("(\\w+)/(\\w+)");
     for (String tz : TimeZone.getAvailableIDs()) {
       Matcher match = tzPattern.matcher(tz);
       if (match.matches()) {
         String region = match.group(1);
         String city = match.group(2);
-        List<String> cities = allTZByRegionMap.get(region);
-        if (cities == null) {
-          cities = new ArrayList<String>();
-          allTZByRegionMap.put(region, cities);
-        }
-        cities.add(city);
+        timeZonesByRegion.put(region, city);
       }
     }
   }
@@ -116,30 +134,7 @@ public class WorldTime extends Activity {
   }
 
   private void updateTimes() {
-    //mainListView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
-    List<Map<String, String>> regionList = ImmutableList.<Map<String, String>>of(
-        ImmutableMap.of("region", "America"),
-        ImmutableMap.of("region", "Africa"));
-    List<List<Map<String, String>>> cityList = ImmutableList.<List<Map<String,String>>>of(
-        ImmutableList.<Map<String,String>>of(
-            ImmutableMap.of("city", "New York"),
-            ImmutableMap.of("city", "Buenos Aires")), 
-        ImmutableList.<Map<String,String>>of(
-            ImmutableMap.of("city", "Abu Dabbi"),
-            ImmutableMap.of("city", "Windhoek")));
-    
-    SimpleExpandableListAdapter listAdapter = new SimpleExpandableListAdapter(
-        this,
-        regionList,
-        R.layout.regions_parent_row,
-        new String[] { "region" },
-        new int[] { R.id.region_name},
-        cityList,
-        R.layout.regions_child_row,
-        new String[] { "city" },
-        new int[] { R.id.city_name }
-        );
-    mainListView.setAdapter(listAdapter);
+    mainListView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, getTimes()));
   }
 
   private List<String> getTimes() {
